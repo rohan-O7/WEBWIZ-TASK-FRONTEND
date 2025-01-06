@@ -27,14 +27,12 @@ function App() {
   const handleEdit =async (e, id) => {
     let t = todos.filter((i) => i.id === id);
     setTodo(t[0].todo);
-    let todo=t[0].todo
 
     await fetch("http://localhost:3000/", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id:id,
-        isCompleted: false,
         todo:todo
         }),
       });  
@@ -186,3 +184,4 @@ function App() {
 }
 
 export default App;
+
