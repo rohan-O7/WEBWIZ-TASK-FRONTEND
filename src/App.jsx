@@ -7,7 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 function App() {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState([]);
-  const [showFinished, setshowFinished] = useState(true);
+  //const [showFinished, setshowFinished] = useState(false);
+  const [id, setid]=useState("");
 
   const gettodos = async () => {
     let req = await fetch("http://localhost:3000/");
@@ -16,36 +17,41 @@ function App() {
     console.log(todoString);
   };
 
-  useEffect(() => {
-    gettodos();
-  }, []);
-
-  const toggleFinished = () => {
-    setshowFinished(!showFinished);
-  };
-
-  const handleEdit =async (e, id) => {
-    let t = todos.filter((i) => i.id === id);
-    setTodo(t[0].todo);
-
-    await fetch("http://localhost:3000/", {
+  const handleEdit2=async()=>{
+    console.log(todo);
+    setTodos([...todos, { id: uuidv4(), todo, isCompleted: false }]); 
+    await fetch("http://localhost:3000/edit", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id:id,
-        todo:todo
+        todo:todo,
         }),
-      });  
-      
+      }); 
+      setTodo("") 
+
+      setid("");
+  }
+
+  useEffect(() => {
+    gettodos();
+  }, []);
+
+
+  const handleEdit =async (e, id) => {
+    let t = todos.filter((i) => i.id === id);
+    setTodo(t[0].todo);
+  
       let newTodos = todos.filter((item) => {
         return item.id !== id;
       });
+      setid(id);
+     
       setTodos(newTodos);
-
   };
 
   const handleDelete = async (e,id) => {
-    let res = await fetch("http://localhost:3000/", {
+    let res = await fetch("http://localhost:3000/delete", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -72,11 +78,10 @@ function App() {
   setTodos([...todos, { id: uuidv4(), todo, isCompleted: false }]); 
 
     // eslint-disable-next-line no-unused-vars
-  let res = await fetch("http://localhost:3000/", {
+  let res = await fetch("http://localhost:3000/add", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      ...todos,
       id: uuidv4(),
       isCompleted: false,
       todo,
@@ -124,9 +129,16 @@ function App() {
             >
               Save
             </button>
+            <button
+              onClick={handleEdit2}
+              disabled={todo.length <= 3}
+              className="bg-violet-800 mx-2 rounded-full hover:bg-violet-950 disabled:bg-violet-500 p-4 py-2 text-sm font-bold text-white"
+            >
+              Edit
+            </button>
           </div>
         </div>
-        <input
+        {/* <input
           className="my-4"
           id="show"
           onChange={toggleFinished}
@@ -136,14 +148,14 @@ function App() {
 
         <label className="mx-2" htmlFor="show">
           Show Finished
-        </label>
+        </label> */}
         <div className="h-[1px] bg-black opacity-15 w-[90%] mx-auto my-2"></div>
         <h2 className="text-2xl font-bold">Your Todos</h2>
         <div className="todos">
           {todos.length === 0 && <div className="m-5">No Todos to display</div>}
           {todos.map((item) => {
             return (
-              (showFinished || !item.isCompleted) && (
+               (
                 <div key={item.id} className={"todo flex my-3 justify-between"}>
                   <div className="flex gap-5">
                     <input
@@ -184,4 +196,3 @@ function App() {
 }
 
 export default App;
-
